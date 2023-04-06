@@ -4,11 +4,14 @@
 此文件为非必要部分，可以将该文件中的内容拆分进其他部分
 """
 
-import re
+import os
 import jieba
+import numpy as np
 from Exp3_DataSet import trainset, testset
+from Exp3_Config import Training_Config
 
 stopwords = []
+config = Training_Config()
 
 def get_stopwords():
     with open("data/stopwords_utf8.txt","r",encoding="utf-8") as file:
@@ -26,25 +29,59 @@ def remove_stopwords(sent_list):
         if not isstopword:
             new_list.append(char)
     return new_list
-        
 
-'''利用语义角色标注,直接获取主谓宾三元组,基于A0,A1,A2'''
-def ruler1(self, words, postags, roles_dict, role_index):
-    v = words[role_index]
-    role_info = roles_dict[role_index]
-    if 'A0' in role_info.keys() and 'A1' in role_info.keys():
-        s = ''.join([words[word_index] for word_index in range(role_info['A0'][1], role_info['A0'][2] + 1) if
-                        postags[word_index][0] not in ['w', 'u', 'x'] and words[word_index]])
-        o = ''.join([words[word_index] for word_index in range(role_info['A1'][1], role_info['A1'][2] + 1) if
-                        postags[word_index][0] not in ['w', 'u', 'x'] and words[word_index]])
-        if s and o:
-            return '1', [s, v, o]
-    return '4', []
+def add_to_vocab(vocab_list, new_list):
+    for word in new_list:
+        if not word in vocab_list:
+            if len(vocab_list) < config.vocab_size:
+                vocab_list.append(word)
+    return vocab_list
 
-if __name__ == '__main__':
+def vectorize_data(head, tail, vocab_list):
+    vector = np.zeros(config.vocab_size, dtype=int)
+    new_list = list(jieba.cut(head, cut_all=False)) + list(jieba.cut(tail, cut_all=False))
+    new_list = remove_stopwords(new_list)
+    for w in new_list:
+        if w in vocab_list:
+            vector[vocab_list.index(w)] = 1
+    return vector
+
+if True:
     print("数据预处理开始......")
     get_stopwords()
-    new = list(jieba.cut(trainset[0]['text'], cut_all=False))
-    #print(new)
-    print(remove_stopwords(new))
+    tmp_list, vocab_list = [], []
+
+    if not os.path.exists('data/vocab_list.txt'):
+        for i in range(len(trainset)):
+            if len(tmp_list) > config.vocab_size:
+                break
+            new_list = list(jieba.cut(trainset[i]['text'], cut_all=False))
+            new_list = remove_stopwords(new_list)
+            tmp_list = add_to_vocab(tmp_list, new_list)
+
+        file = open('data/vocab_list.txt','w',encoding='utf-8')
+        for word in tmp_list:
+            file.write(word+"\n")
+        file.close()
+
+    with open('data/vocab_list.txt','r', encoding='utf-8') as file:
+        for line in file:
+            vocab_list.append(line.replace("\n",""))
+
+    print("词汇表:",len(vocab_list))
+    file.close()
+
+    #print(trainset[0])
+    train_vec = []
+    if not os.path.exists('data/train_X.txt'):
+        for i in range(len(trainset)):
+            vector = vectorize_data(trainset[i]['head'], trainset[i]['tail'], vocab_list)
+            train_vec.append(vector)
+        train_vec = np.array(train_vec)
+        np.savetxt("data/train_X.txt",train_vec,fmt='%s')
+    
+    train_vec = np.loadtxt("data/train_X.txt")
+    train_vec = np.array(train_vec)
+    print(train_vec.shape)
+
     print("数据预处理完毕！")
