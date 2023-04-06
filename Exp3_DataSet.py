@@ -1,7 +1,6 @@
 import torch
 from torch.utils.data import Dataset
 
-
 # 训练集和验证集
 class TextDataSet(Dataset):
     def __init__(self, filepath):
@@ -42,9 +41,9 @@ class TestDataSet(Dataset):
     def __len__(self):
         return len(self.original_data)
 
+trainset = TextDataSet(filepath="./data/data_train.txt")
+testset = TestDataSet(filepath="./data/test_exp3.txt")
 
 if __name__ == "__main__":
-    trainset = TextDataSet(filepath="./data/data_train.txt")
-    testset = TestDataSet(filepath="./data/test_exp3.txt")
     print("训练集长度为：", len(trainset))
     print("测试集长度为：", len(testset))
