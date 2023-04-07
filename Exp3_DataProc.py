@@ -37,14 +37,22 @@ def add_to_vocab(vocab_list, new_list):
                 vocab_list.append(word)
     return vocab_list
 
-def vectorize_data(head, tail, vocab_list):
-    vector = np.zeros(config.vocab_size, dtype=int)
-    new_list = list(jieba.cut(head, cut_all=False)) + list(jieba.cut(tail, cut_all=False))
+def vectorize_data(sentence, vocab_list):
+    vector = np.zeros(config.embedding_dimension, dtype=int)
+    index = 0
+    new_list = list(jieba.cut(sentence, cut_all=False))
     new_list = remove_stopwords(new_list)
     for w in new_list:
-        if w in vocab_list:
-            vector[vocab_list.index(w)] = 1
+        if w in vocab_list and index < 100:
+            vector[index] = vocab_list.index(w)
+            index += 1
     return vector
+
+def get_location(head, tail, sentence):
+    vector = []
+    new_list = list(jieba.cut(head, cut_all=False)) + list(jieba.cut(tail, cut_all=False))
+    new_list = remove_stopwords(new_list)
+    
 
 if True:
     print("数据预处理开始......")
@@ -73,14 +81,14 @@ if True:
 
     #print(trainset[0])
     train_vec = []
-    if not os.path.exists('data/train_X.txt'):
+    if not os.path.exists('data/trainX.txt'):
         for i in range(len(trainset)):
-            vector = vectorize_data(trainset[i]['head'], trainset[i]['tail'], vocab_list)
+            vector = vectorize_data(trainset[i]['text'], vocab_list)
             train_vec.append(vector)
         train_vec = np.array(train_vec)
-        np.savetxt("data/train_X.txt",train_vec,fmt='%s')
+        np.savetxt("data/trainX.txt",train_vec,fmt='%s')
     
-    train_vec = np.loadtxt("data/train_X.txt")
+    train_vec = np.loadtxt("data/trainX.txt")
     train_vec = np.array(train_vec)
     print(train_vec.shape)
 
