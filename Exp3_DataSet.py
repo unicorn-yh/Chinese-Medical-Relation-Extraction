@@ -42,8 +42,10 @@ class TestDataSet(Dataset):
         return len(self.original_data)
 
 trainset = TextDataSet(filepath="./data/data_train.txt")
+valset = TextDataSet(filepath="./data/data_val.txt")
 testset = TestDataSet(filepath="./data/test_exp3.txt")
 
 if __name__ == "__main__":
     print("训练集长度为：", len(trainset))
+    print("验证集长度为：", len(valset))
     print("测试集长度为：", len(testset))
