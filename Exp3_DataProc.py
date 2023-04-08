@@ -34,6 +34,13 @@ def relation2id():
     return relation_dict
 
 
+def id2relation():
+    with open('data/rel2id.json',encoding='utf-8') as json_file:
+        data = json.load(json_file)
+        relation_dict = data[0]
+    return relation_dict
+
+
 def head_tail_location(dataset):
     '''Get Head / Tail Location'''
     loc_vec = []
@@ -154,6 +161,7 @@ def read_data(dataset, tokenizer=None, max_len=config.embedding_dimension):
     loc_vec = head_tail_location(dataset)
     if tokenizer is None:
         tokenizer = MyTokenizer()
+
     for i in range(len(dataset)):
         if loc_vec[i][0][0] == -1 or loc_vec[i][1][0] == -1:
             continue

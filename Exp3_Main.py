@@ -4,8 +4,7 @@
 
 
 from Exp3_Config import Training_Config
-from Exp3_DataSet import TextDataSet, TestDataSet
-from Exp3_DataProc import train_data, val_data, test_data
+from Exp3_DataProc import train_data, val_data, test_data, id2relation
 from torch.utils.data import DataLoader
 from Exp3_Model import TextCNN_Model
 import torch
