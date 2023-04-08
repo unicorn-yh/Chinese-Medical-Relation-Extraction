@@ -5,6 +5,7 @@
 
 from Exp3_Config import Training_Config
 from Exp3_DataSet import TextDataSet, TestDataSet
+from Exp3_DataProc import train_data, val_data, test_data
 from torch.utils.data import DataLoader
 from Exp3_Model import TextCNN_Model
 import torch
@@ -29,14 +30,14 @@ if __name__ == "__main__":
     config = Training_Config()
 
     # 训练集验证集
-    train_dataset = TextDataSet(filepath="./data/data_train.txt")
+    train_dataset = train_data
     train_loader = DataLoader(dataset=train_dataset, batch_size=config.batch_size)
 
-    val_dataset = TextDataSet(filepath="./data/data_val.txt")
+    val_dataset = val_data
     val_loader = DataLoader(dataset=val_dataset, batch_size=config.batch_size)
 
     # 测试集数据集和加载器
-    test_dataset = TestDataSet("./data/test_exp3.txt")
+    test_dataset = test_data
     test_loader = DataLoader(dataset=test_dataset, batch_size=config.batch_size)
 
     # 初始化模型对象
