@@ -155,6 +155,8 @@ def read_data(dataset, tokenizer=None, max_len=config.embedding_dimension):
     if tokenizer is None:
         tokenizer = MyTokenizer()
     for i in range(len(dataset)):
+        if loc_vec[i][0][0] == -1 or loc_vec[i][1][0] == -1:
+            continue
         tokens, pos_e1, pos_e2 = tokenizer.tokenize(dataset[i]['text'],loc_vec[i])
         if pos_e1[0] < max_len - 1 and pos_e1[1] < max_len and \
                 pos_e2[0] < max_len - 1 and pos_e2[1] < max_len:
@@ -222,5 +224,6 @@ val_data = SentenceREDataset(valset)
 test_data = SentenceREDataset(testset)
 print("预处理后的训练集、验证集、测试集大小:",len(train_data),",",len(val_data),",",len(test_data)) 
 print("数据预处理完毕！")
+
 
 
