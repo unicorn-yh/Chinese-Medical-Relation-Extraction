@@ -6,7 +6,7 @@
 
 class Training_Config(object):
     def __init__(self,
-                 embedding_dimension=100,
+                 embedding_dimension=128,
                  vocab_size=20000,
                  training_epoch=2,
                  num_val=2,
