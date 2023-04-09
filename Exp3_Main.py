@@ -16,6 +16,7 @@ import time
 device = 'cpu'
 
 def train(model, loader):
+    running_loss = 0.0
     for index, data in enumerate(loader):
         #model(data['text'])
         token_ids = data['token_ids'].to(device)
@@ -32,7 +33,7 @@ def train(model, loader):
     
         running_loss += loss.item()
         if index % 10 == 9:
-            writer.add_scalar('Training/training loss', running_loss / 10, epoch * len(train_loader) + i_batch)
+            writer.add_scalar('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
             running_loss = 0.0
 
 
@@ -52,7 +53,12 @@ def validation(model, loader):
         tags_true.extend(tag_ids.tolist())
         tags_pred.extend(pred_tag_ids.tolist())
 
-    print(metrics.classification_report(tags_true, tags_pred, labels=list(idx2tag.keys()), target_names=list(idx2tag.values())))
+    try:
+        print(metrics.classification_report(tags_true, tags_pred, labels=list(idx2tag.keys()), target_names=list(idx2tag.values())))
+    except:
+        print(tags_true)
+        print(tags_pred)
+
     f1 = metrics.f1_score(tags_true, tags_pred, average='weighted')
     precision = metrics.precision_score(tags_true, tags_pred, average='weighted')
     recall = metrics.recall_score(tags_true, tags_pred, average='weighted')
@@ -75,8 +81,25 @@ def validation(model, loader):
 
 
 def predict(model, loader):
+    #tags_true = []
+    tags_pred = []
     for index, data in enumerate(loader):
-        model(data['tail'])
+        #model(data['tail'])
+        token_ids = data['token_ids'].to(device)
+        token_type_ids = data['token_type_ids'].to(device)
+        attention_mask = data['attention_mask'].to(device)
+        e1_mask = data['e1_mask'].to(device)
+        e2_mask = data['e2_mask'].to(device)
+        #tag_ids = data['tag_id']
+        logits = model(token_ids, token_type_ids, attention_mask, e1_mask, e2_mask)
+        pred_tag_ids = logits.argmax(1)
+        #tags_true.extend(tag_ids.tolist())
+        tags_pred.extend(pred_tag_ids.tolist())
+    print(tags_pred)
+    with open("exp3_predict_labels_1820201040.txt","w") as file:
+        for tag in tags_pred:
+            file.write("%s\n" % tag)
+
 
 def load_checkpoint(checkpoint_file, model, model_file):
     # load checkpoint if one exists
@@ -115,15 +138,20 @@ if __name__ == "__main__":
     writer = SummaryWriter(os.path.join(config.log_dir, time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())))
     idx2tag = id2relation()
 
+    print(idx2tag)
+    
+
     # 训练和验证
     for epoch in range(config.epoch):
-        print("Epoch: {}".format(config.epoch))
+        print("Epoch: {}".format(epoch))
         Text_Model.train()
         train(Text_Model, loader=train_loader)
         #if epoch % config.num_val == 0:
         Text_Model.eval()
         with torch.no_grad():
             validation(Text_Model, loader=val_loader)
+
+    writer.close()
 
     # 预测（测试）
     predict(Text_Model, test_loader)
