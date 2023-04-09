@@ -6,7 +6,7 @@
 
 class Training_Config(object):
     def __init__(self,
-                 embedding_dimension=128,
+                 embedding_dimension=768,
                  vocab_size=20000,
                  training_epoch=2,
                  num_val=2,
@@ -15,7 +15,10 @@ class Training_Config(object):
                  label_num=2,
                  learning_rate=0.01,
                  batch_size=8,
-                 dropout=0.3):
+                 dropout=0.3,
+                 pretrained_model_path=None,
+                 class_num=44,
+                 log_dir='run'):
         self.embedding_dimension = embedding_dimension  # 词向量的维度
         self.vocab_size = vocab_size  # 词汇表大小
         self.epoch = training_epoch  # 训练轮数
@@ -26,4 +29,7 @@ class Training_Config(object):
         self.batch_size = batch_size  # 批大小
         self.cuda = cuda  # 是否用CUDA
         self.dropout = dropout  # dropout概率
+        self.pretrained_model_path = pretrained_model_path 
+        self.class_num = class_num
+        self.log_dir = log_dir
 
