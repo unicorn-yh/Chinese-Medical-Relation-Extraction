@@ -146,14 +146,14 @@ class MyTokenizer(object):
         return re_tokens[1:-1], pos1, pos2
     
     
-def convert_pos_to_mask(e_pos, max_len=config.embedding_dimension):
+def convert_pos_to_mask(e_pos, max_len=config.max_sentence_length):
     e_pos_mask = [0] * max_len
     for i in range(e_pos[0], e_pos[1]):
         e_pos_mask[i] = 1
     return e_pos_mask
 
 
-def read_data(dataset, tokenizer=None, max_len=config.embedding_dimension):
+def read_data(dataset, tokenizer=None, max_len=config.max_sentence_length):
     tokens_list = []
     e1_mask_list = []
     e2_mask_list = []
@@ -180,7 +180,7 @@ def read_data(dataset, tokenizer=None, max_len=config.embedding_dimension):
     
 
 class SentenceREDataset(Dataset):
-    def __init__(self, dataset, pretrained_model_path=None, max_len=config.embedding_dimension):
+    def __init__(self, dataset, pretrained_model_path=None, max_len=config.max_sentence_length):
         self.pretrained_model_path = pretrained_model_path or 'bert-base-chinese'
         self.tokenizer = MyTokenizer(pretrained_model_path=self.pretrained_model_path)
         self.max_len = max_len
