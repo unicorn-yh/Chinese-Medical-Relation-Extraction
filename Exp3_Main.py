@@ -13,7 +13,9 @@ from torch.utils.tensorboard import SummaryWriter
 from sklearn import metrics
 import time
 
-device = 'cpu'
+config = Training_Config()
+device = 'cuda' if config.cuda else 'cpu'
+idx2tag = id2relation()
 
 def train(model, loader):
     running_loss = 0.0
@@ -33,7 +35,8 @@ def train(model, loader):
     
         running_loss += loss.item()
         if index % 10 == 9:
-            writer.add_scalar('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
+            #writer.add_scalar('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
+            print('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
             running_loss = 0.0
 
 
@@ -54,19 +57,20 @@ def validation(model, loader):
         tags_pred.extend(pred_tag_ids.tolist())
 
     try:
-        print(metrics.classification_report(tags_true, tags_pred, labels=list(idx2tag.keys()), target_names=list(idx2tag.values())))
+        #print(metrics.classification_report(tags_true, tags_pred, labels=list(idx2tag.keys()), target_names=list(idx2tag.values())))
+        accuracy = get_accuracy(tags_pred, tags_true)
+        print('Validation/accuracy:', accuracy)
     except:
-        print(tags_true)
-        print(tags_pred)
+        print("ERROR")
 
-    f1 = metrics.f1_score(tags_true, tags_pred, average='weighted')
+    '''f1 = metrics.f1_score(tags_true, tags_pred, average='weighted')
     precision = metrics.precision_score(tags_true, tags_pred, average='weighted')
     recall = metrics.recall_score(tags_true, tags_pred, average='weighted')
     accuracy = metrics.accuracy_score(tags_true, tags_pred)
     writer.add_scalar('Validation/f1', f1, epoch)
     writer.add_scalar('Validation/precision', precision, epoch)
     writer.add_scalar('Validation/recall', recall, epoch)
-    writer.add_scalar('Validation/accuracy', accuracy, epoch)
+    writer.add_scalar('Validation/accuracy', accuracy, epoch)'''
 
     '''if checkpoint_dict.get('epoch_f1'):
         checkpoint_dict['epoch_f1'][epoch] = f1
@@ -100,6 +104,12 @@ def predict(model, loader):
         for tag in tags_pred:
             file.write("%s\n" % tag)
 
+def get_accuracy(prediction, label):
+    batch_size, _ = prediction.shape
+    predicted_classes = prediction.argmax(dim=-1)
+    correct_predictions = predicted_classes.eq(label).sum()
+    accuracy = correct_predictions
+    return accuracy
 
 def load_checkpoint(checkpoint_file, model, model_file):
     # load checkpoint if one exists
@@ -115,7 +125,6 @@ def load_checkpoint(checkpoint_file, model, model_file):
     return best_f1, epoch_offset
 
 if __name__ == "__main__":
-    config = Training_Config()
 
     # 训练集验证集
     train_dataset = train_data
@@ -136,9 +145,6 @@ if __name__ == "__main__":
     # 优化器设置
     optimizer = torch.optim.Adam(params=Text_Model.parameters())  # torch.optim中的优化器进行挑选，并进行参数设置
     writer = SummaryWriter(os.path.join(config.log_dir, time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())))
-    idx2tag = id2relation()
-
-    print(idx2tag)
     
 
     # 训练和验证
