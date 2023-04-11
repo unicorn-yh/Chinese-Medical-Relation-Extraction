@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 from Exp3_Model import TextCNN_Model, SentenceRE
 import torch
 import os
+import json
 from torch.utils.tensorboard import SummaryWriter
 from sklearn import metrics
 import time
@@ -35,12 +36,12 @@ def train(model, loader):
     
         running_loss += loss.item()
         if index % 10 == 9:
-            #writer.add_scalar('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
-            print('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
+            writer.add_scalar('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
+            #print('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
             running_loss = 0.0
 
 
-def validation(model, loader):
+def validation(model, loader, best_f1):
     tags_true = []
     tags_pred = []
     for index, data in enumerate(loader):
@@ -58,21 +59,21 @@ def validation(model, loader):
 
     try:
         #print(metrics.classification_report(tags_true, tags_pred, labels=list(idx2tag.keys()), target_names=list(idx2tag.values())))
-        accuracy = get_accuracy(tags_pred, tags_true)
+        #accuracy = get_accuracy(tags_pred, tags_true)
         print('Validation/accuracy:', accuracy)
     except:
         print("ERROR")
 
-    '''f1 = metrics.f1_score(tags_true, tags_pred, average='weighted')
+    f1 = metrics.f1_score(tags_true, tags_pred, average='weighted')
     precision = metrics.precision_score(tags_true, tags_pred, average='weighted')
     recall = metrics.recall_score(tags_true, tags_pred, average='weighted')
     accuracy = metrics.accuracy_score(tags_true, tags_pred)
     writer.add_scalar('Validation/f1', f1, epoch)
     writer.add_scalar('Validation/precision', precision, epoch)
     writer.add_scalar('Validation/recall', recall, epoch)
-    writer.add_scalar('Validation/accuracy', accuracy, epoch)'''
+    writer.add_scalar('Validation/accuracy', accuracy, epoch)
 
-    '''if checkpoint_dict.get('epoch_f1'):
+    if checkpoint_dict.get('epoch_f1'):
         checkpoint_dict['epoch_f1'][epoch] = f1
     else:
         checkpoint_dict['epoch_f1'] = {epoch: f1}
@@ -80,8 +81,8 @@ def validation(model, loader):
         best_f1 = f1
         checkpoint_dict['best_f1'] = best_f1
         checkpoint_dict['best_epoch'] = epoch
-        torch.save(model.state_dict(), model_file)
-    save_checkpoint(checkpoint_dict, checkpoint_file)'''
+        torch.save(model.state_dict(), config.model_file)
+    save_checkpoint(checkpoint_dict, config.checkpoint_file)
 
 
 def predict(model, loader):
@@ -99,7 +100,6 @@ def predict(model, loader):
         pred_tag_ids = logits.argmax(1)
         #tags_true.extend(tag_ids.tolist())
         tags_pred.extend(pred_tag_ids.tolist())
-    print(tags_pred)
     with open("exp3_predict_labels_1820201040.txt","w") as file:
         for tag in tags_pred:
             file.write("%s\n" % tag)
@@ -111,8 +111,18 @@ def get_accuracy(prediction, label):
     accuracy = correct_predictions
     return accuracy
 
-def load_checkpoint(checkpoint_file, model, model_file):
+def save_checkpoint(checkpoint_dict, file):
+    with open(file, 'w', encoding='utf-8') as f_out:
+        json.dump(checkpoint_dict, f_out, ensure_ascii=False, indent=2)
+
+def load_checkpoint(file):
+    with open(file, 'r', encoding='utf-8') as f_in:
+        checkpoint_dict = json.load(f_in)
+    return checkpoint_dict
+
+def get_checkpoint(checkpoint_file, model, model_file):
     # load checkpoint if one exists
+    print(checkpoint_file)
     if os.path.exists(checkpoint_file):
         checkpoint_dict = load_checkpoint(checkpoint_file)
         best_f1 = checkpoint_dict['best_f1']
@@ -122,7 +132,7 @@ def load_checkpoint(checkpoint_file, model, model_file):
         checkpoint_dict = {}
         best_f1 = 0.0
         epoch_offset = 0
-    return best_f1, epoch_offset
+    return checkpoint_dict, best_f1, epoch_offset
 
 if __name__ == "__main__":
 
@@ -139,23 +149,25 @@ if __name__ == "__main__":
 
     # 初始化模型对象
     #Text_Model = TextCNN_Model(configs=config)
-    Text_Model = SentenceRE(config)
+    Text_Model = SentenceRE(config).to(device)
     # 损失函数设置
     loss_function = torch.nn.CrossEntropyLoss()  # torch.nn中的损失函数进行挑选，并进行参数设置
     # 优化器设置
     optimizer = torch.optim.Adam(params=Text_Model.parameters())  # torch.optim中的优化器进行挑选，并进行参数设置
     writer = SummaryWriter(os.path.join(config.log_dir, time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())))
     
+    # load checkpoint if one exists
+    checkpoint_dict, best_f1, epoch_offset = get_checkpoint(config.checkpoint_file, Text_Model, config.model_file)
 
     # 训练和验证
     for epoch in range(config.epoch):
-        print("Epoch: {}".format(epoch))
+        print("Epoch {}".format(epoch))
         Text_Model.train()
         train(Text_Model, loader=train_loader)
         #if epoch % config.num_val == 0:
         Text_Model.eval()
         with torch.no_grad():
-            validation(Text_Model, loader=val_loader)
+            validation(Text_Model, loader=val_loader, best_f1=best_f1)
 
     writer.close()
 
