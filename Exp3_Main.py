@@ -135,6 +135,7 @@ def get_checkpoint(checkpoint_file, model, model_file):
     return checkpoint_dict, best_f1, epoch_offset
 
 if __name__ == "__main__":
+    print("训练模型......")
 
     # 训练集验证集
     train_dataset = train_data
