@@ -8,17 +8,19 @@ class Training_Config(object):
     def __init__(self,
                  embedding_dimension=768,
                  vocab_size=20000,
-                 training_epoch=2,
+                 training_epoch=20,
                  num_val=2,
-                 max_sentence_length=40,
-                 cuda=False,
+                 max_sentence_length=128,
+                 cuda=True,
                  label_num=2,
                  learning_rate=0.01,
                  batch_size=8,
                  dropout=0.3,
                  pretrained_model_path=None,
                  class_num=44,
-                 log_dir='run'):
+                 log_dir='run',
+                 checkpoint_file='checkpoint.json',
+                 model_file='model.bin'):
         self.embedding_dimension = embedding_dimension  # 词向量的维度
         self.vocab_size = vocab_size  # 词汇表大小
         self.epoch = training_epoch  # 训练轮数
@@ -32,4 +34,6 @@ class Training_Config(object):
         self.pretrained_model_path = pretrained_model_path 
         self.class_num = class_num
         self.log_dir = log_dir
+        self.checkpoint_file = checkpoint_file
+        self.model_file = model_file
 
