@@ -4,9 +4,9 @@
 
 
 from Exp3_Config import Training_Config
-from Exp3_DataProc import train_data, val_data, test_data, id2relation
+from Exp3_DataProc import train_data, val_data, test_data, id2relation, pre_embed
 from torch.utils.data import DataLoader
-from Exp3_Model import TextCNN_Model, SentenceRE
+from Exp3_Model import TextCNN_Model
 import torch
 import os
 import json
@@ -19,60 +19,43 @@ device = 'cuda' if config.cuda else 'cpu'
 idx2tag = id2relation()
 
 def train(model, loader):
+    correct_count = 0
     running_loss = 0.0
     for index, data in enumerate(loader):
-        #model(data['text'])
-        token_ids = data['token_ids'].to(device)
-        token_type_ids = data['token_type_ids'].to(device)
-        attention_mask = data['attention_mask'].to(device)
-        e1_mask = data['e1_mask'].to(device)
-        e2_mask = data['e2_mask'].to(device)
-        tag_ids = data['tag_id'].to(device)
-        model.zero_grad()
-        logits = model(token_ids, token_type_ids, attention_mask, e1_mask, e2_mask)
-        loss = loss_function(logits, tag_ids)
+        tensordata, label = data
+        logits = model(tensordata)
+        _, predict = logits.max(1)
+        predict = predict.float()
+        label = torch.squeeze(label)
+        loss = loss_function(logits, label)
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    
         running_loss += loss.item()
-        if index % 10 == 9:
-            writer.add_scalar('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
-            #print('Training/training loss', running_loss / 10, epoch * len(train_loader) + index)
-            running_loss = 0.0
+        correct = (predict==label).sum().item()
+        correct_count += correct
+        acc = correct_count/(len(loader)*config.batch_size)
+        loss = running_loss/(len(loader)*config.batch_size)
+    print("Train acc:{:.4f}, Train loss:{:.4f}, ".format(acc,loss),end="")
 
 
 def validation(model, loader, best_f1):
-    tags_true = []
-    tags_pred = []
+    correct_count = 0
+    tags_true, tags_pred = [],[]
     for index, data in enumerate(loader):
-        #model(data['head'])
-        token_ids = data['token_ids'].to(device)
-        token_type_ids = data['token_type_ids'].to(device)
-        attention_mask = data['attention_mask'].to(device)
-        e1_mask = data['e1_mask'].to(device)
-        e2_mask = data['e2_mask'].to(device)
-        tag_ids = data['tag_id']
-        logits = model(token_ids, token_type_ids, attention_mask, e1_mask, e2_mask)
-        pred_tag_ids = logits.argmax(1)
-        tags_true.extend(tag_ids.tolist())
-        tags_pred.extend(pred_tag_ids.tolist())
-
-    try:
-        #print(metrics.classification_report(tags_true, tags_pred, labels=list(idx2tag.keys()), target_names=list(idx2tag.values())))
-        #accuracy = get_accuracy(tags_pred, tags_true)
-        print('Validation/accuracy:', accuracy)
-    except:
-        print("ERROR")
+        tensordata, label = data
+        logits = model(tensordata)
+        _, predict = logits.max(1)
+        predict = predict.float()
+        label = torch.squeeze(label)
+        tags_true.extend(label.tolist())
+        tags_pred.extend(predict.tolist())
+        correct = (predict==label).sum().item()
+        correct_count += correct
+        valid_acc = correct_count/(len(loader)*config.batch_size)
+    print("Valid acc:{:.4f}".format(valid_acc))
 
     f1 = metrics.f1_score(tags_true, tags_pred, average='weighted')
-    precision = metrics.precision_score(tags_true, tags_pred, average='weighted')
-    recall = metrics.recall_score(tags_true, tags_pred, average='weighted')
-    accuracy = metrics.accuracy_score(tags_true, tags_pred)
-    writer.add_scalar('Validation/f1', f1, epoch)
-    writer.add_scalar('Validation/precision', precision, epoch)
-    writer.add_scalar('Validation/recall', recall, epoch)
-    writer.add_scalar('Validation/accuracy', accuracy, epoch)
-
     if checkpoint_dict.get('epoch_f1'):
         checkpoint_dict['epoch_f1'][epoch] = f1
     else:
@@ -86,30 +69,15 @@ def validation(model, loader, best_f1):
 
 
 def predict(model, loader):
-    #tags_true = []
     tags_pred = []
     for index, data in enumerate(loader):
-        #model(data['tail'])
-        token_ids = data['token_ids'].to(device)
-        token_type_ids = data['token_type_ids'].to(device)
-        attention_mask = data['attention_mask'].to(device)
-        e1_mask = data['e1_mask'].to(device)
-        e2_mask = data['e2_mask'].to(device)
-        #tag_ids = data['tag_id']
-        logits = model(token_ids, token_type_ids, attention_mask, e1_mask, e2_mask)
-        pred_tag_ids = logits.argmax(1)
-        #tags_true.extend(tag_ids.tolist())
-        tags_pred.extend(pred_tag_ids.tolist())
+        model.eval()
+        logits = model(data)
+        predict = torch.argmax(logits,dim=1)
+        tags_pred.extend(predict.tolist())
     with open("exp3_predict_labels_1820201040.txt","w") as file:
         for tag in tags_pred:
             file.write("%s\n" % tag)
-
-def get_accuracy(prediction, label):
-    batch_size, _ = prediction.shape
-    predicted_classes = prediction.argmax(dim=-1)
-    correct_predictions = predicted_classes.eq(label).sum()
-    accuracy = correct_predictions
-    return accuracy
 
 def save_checkpoint(checkpoint_dict, file):
     with open(file, 'w', encoding='utf-8') as f_out:
@@ -142,19 +110,19 @@ if __name__ == "__main__":
     train_loader = DataLoader(dataset=train_dataset, batch_size=config.batch_size)
 
     val_dataset = val_data
-    val_loader = DataLoader(dataset=val_dataset, batch_size=config.batch_size)
+    val_loader = DataLoader(dataset=val_dataset, batch_size=config.batch_size, drop_last=True)
 
     # 测试集数据集和加载器
     test_dataset = test_data
     test_loader = DataLoader(dataset=test_dataset, batch_size=config.batch_size)
 
     # 初始化模型对象
-    #Text_Model = TextCNN_Model(configs=config)
-    Text_Model = SentenceRE(config).to(device)
+    Text_Model = TextCNN_Model(configs=config,pre_embedding=pre_embed).to(device)
+    #Text_Model = SentenceRE(config).to(device)
     # 损失函数设置
     loss_function = torch.nn.CrossEntropyLoss()  # torch.nn中的损失函数进行挑选，并进行参数设置
     # 优化器设置
-    optimizer = torch.optim.Adam(params=Text_Model.parameters())  # torch.optim中的优化器进行挑选，并进行参数设置
+    optimizer = torch.optim.Adam(params=Text_Model.parameters(),lr=config.lr,weight_decay=1e-5)  # torch.optim中的优化器进行挑选，并进行参数设置
     writer = SummaryWriter(os.path.join(config.log_dir, time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())))
     
     # load checkpoint if one exists
@@ -162,11 +130,9 @@ if __name__ == "__main__":
 
     # 训练和验证
     for epoch in range(config.epoch):
-        print("Epoch {}".format(epoch))
-        Text_Model.train()
+        print("Epoch {}".format(epoch+1),end=", ")
         train(Text_Model, loader=train_loader)
         #if epoch % config.num_val == 0:
-        Text_Model.eval()
         with torch.no_grad():
             validation(Text_Model, loader=val_loader, best_f1=best_f1)
 
