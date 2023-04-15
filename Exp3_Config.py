@@ -6,18 +6,17 @@
 
 class Training_Config(object):
     def __init__(self,
-                 embedding_dimension=768,
+                 embedding_dimension=100,
                  vocab_size=20000,
-                 training_epoch=20,
+                 training_epoch=10,
                  num_val=2,
-                 max_sentence_length=128,
-                 cuda=True,
-                 label_num=2,
-                 learning_rate=0.01,
-                 batch_size=8,
+                 max_sentence_length=100,
+                 cuda=False,
+                 label_num=44,
+                 learning_rate=0.001,
+                 batch_size=16,
                  dropout=0.3,
                  pretrained_model_path=None,
-                 class_num=44,
                  log_dir='run',
                  checkpoint_file='checkpoint.json',
                  model_file='model.bin'):
@@ -32,7 +31,6 @@ class Training_Config(object):
         self.cuda = cuda  # 是否用CUDA
         self.dropout = dropout  # dropout概率
         self.pretrained_model_path = pretrained_model_path 
-        self.class_num = class_num
         self.log_dir = log_dir
         self.checkpoint_file = checkpoint_file
         self.model_file = model_file
