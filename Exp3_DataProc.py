@@ -86,7 +86,7 @@ def id2relation():
 
 def word2vec():
     word2vec_dict = {}
-    with open('skip-gram-zhongyi.txt','r',encoding='utf-8') as file:
+    with open('skip-gram-model.txt','r',encoding='utf-8') as file:
         for line in file:
             tmp = line.index("[")
             word2vec_dict[line[0:tmp]] = line[tmp+1:len(line)-2]
@@ -172,6 +172,7 @@ def head_tail_location(dataset):
     loc_vec = np.array(loc_vec, dtype=int)
     return loc_vec
 
+
 def get_tensordata(dataset,loc_vec,word2index,relation2id_dict):
     '''Get data in Tensor format'''
     tensor_data = []
@@ -226,153 +227,6 @@ def pos_feature(x):
         return x + 50
     else:
         return 50 * 2  
-
-class MyTokenizer(object):
-    def __init__(self, pretrained_model_path=None, mask_entity=False):
-        self.pretrained_model_path = pretrained_model_path or 'bert-base-chinese'
-        self.bert_tokenizer = BertTokenizer.from_pretrained(self.pretrained_model_path)
-        self.mask_entity = mask_entity
-
-    def tokenize(self, sentence, loc_vec):
-        pos_head = loc_vec[0]
-        pos_tail = loc_vec[1]
-
-        if pos_head[0] > pos_tail[0]:
-            pos_min = pos_tail
-            pos_max = pos_head
-            rev = True
-        else:
-            pos_min = pos_head
-            pos_max = pos_tail
-            rev = False
-
-        sent0 = self.bert_tokenizer.tokenize(sentence[:pos_min[0]])
-        ent0 = self.bert_tokenizer.tokenize(sentence[pos_min[0]:pos_min[1]])
-        sent1 = self.bert_tokenizer.tokenize(sentence[pos_min[1]:pos_max[0]])
-        ent1 = self.bert_tokenizer.tokenize(sentence[pos_max[0]:pos_max[1]])
-        sent2 = self.bert_tokenizer.tokenize(sentence[pos_max[1]:])
-
-        if rev:
-            if self.mask_entity:
-                ent0 = ['[unused6]']
-                ent1 = ['[unused5]']
-            pos_tail = [len(sent0), len(sent0) + len(ent0)]
-            pos_head = [
-                len(sent0) + len(ent0) + len(sent1),
-                len(sent0) + len(ent0) + len(sent1) + len(ent1)
-            ]
-        else:
-            if self.mask_entity:
-                ent0 = ['[unused5]']
-                ent1 = ['[unused6]']
-            pos_head = [len(sent0), len(sent0) + len(ent0)]
-            pos_tail = [
-                len(sent0) + len(ent0) + len(sent1),
-                len(sent0) + len(ent0) + len(sent1) + len(ent1)
-            ]
-        tokens = sent0 + ent0 + sent1 + ent1 + sent2
-
-        re_tokens = ['[CLS]']
-        cur_pos = 0
-        pos1 = [0, 0]
-        pos2 = [0, 0]
-        for token in tokens:
-            token = token.lower()
-            if cur_pos == pos_head[0]:
-                pos1[0] = len(re_tokens)
-                re_tokens.append('[unused1]')
-            if cur_pos == pos_tail[0]:
-                pos2[0] = len(re_tokens)
-                re_tokens.append('[unused2]')
-            re_tokens.append(token)
-            if cur_pos == pos_head[1] - 1:
-                re_tokens.append('[unused3]')
-                pos1[1] = len(re_tokens)
-            if cur_pos == pos_tail[1] - 1:
-                re_tokens.append('[unused4]')
-                pos2[1] = len(re_tokens)
-            cur_pos += 1
-        re_tokens.append('[SEP]')
-        return re_tokens[1:-1], pos1, pos2
-    
-    
-def convert_pos_to_mask(e_pos, max_len=config.max_sentence_length):
-    e_pos_mask = [0] * max_len
-    for i in range(e_pos[0], e_pos[1]):
-        e_pos_mask[i] = 1
-    return e_pos_mask
-
-
-def read_data(dataset, tokenizer=None, max_len=config.max_sentence_length):
-    tokens_list = []
-    e1_mask_list = []
-    e2_mask_list = []
-    tags = []
-    loc_vec = head_tail_location(dataset)
-    if tokenizer is None:
-        tokenizer = MyTokenizer()
-
-    for i in range(len(dataset)):
-        if loc_vec[i][0][0] == -1 or loc_vec[i][1][0] == -1:
-            continue
-        tokens, pos_e1, pos_e2 = tokenizer.tokenize(dataset[i]['text'],loc_vec[i])
-        if pos_e1[0] < max_len - 1 and pos_e1[1] < max_len and \
-                pos_e2[0] < max_len - 1 and pos_e2[1] < max_len:
-            tokens_list.append(tokens)
-            e1_mask = convert_pos_to_mask(pos_e1, max_len)
-            e2_mask = convert_pos_to_mask(pos_e2, max_len)
-            e1_mask_list.append(e1_mask)
-            e2_mask_list.append(e2_mask)
-            if not dataset == testset:
-                tag = dataset[i]['relation']
-                tags.append(tag)
-    return tokens_list, e1_mask_list, e2_mask_list, tags
-    
-
-class SentenceREDataset(Dataset):
-    def __init__(self, dataset, pretrained_model_path=None, max_len=config.max_sentence_length):
-        self.pretrained_model_path = pretrained_model_path or 'bert-base-chinese'
-        self.tokenizer = MyTokenizer(pretrained_model_path=self.pretrained_model_path)
-        self.max_len = max_len
-        self.tokens_list, self.e1_mask_list, self.e2_mask_list, self.tags = read_data(dataset, tokenizer=self.tokenizer, max_len=self.max_len)
-        self.tag2idx = relation2id()
-        self.dataset = dataset
-
-    def __len__(self):
-        return len(self.tokens_list)
-
-    def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-        sample_tokens = self.tokens_list[idx]
-        sample_e1_mask = self.e1_mask_list[idx]
-        sample_e2_mask = self.e2_mask_list[idx]
-        encoded = self.tokenizer.bert_tokenizer.encode_plus(sample_tokens, max_length=self.max_len, pad_to_max_length=True)
-        sample_token_ids = encoded['input_ids']
-        sample_token_type_ids = encoded['token_type_ids']
-        sample_attention_mask = encoded['attention_mask']
-
-        if self.dataset == testset:
-            sample = {
-                'token_ids': torch.tensor(sample_token_ids),
-                'token_type_ids': torch.tensor(sample_token_type_ids),
-                'attention_mask': torch.tensor(sample_attention_mask),
-                'e1_mask': torch.tensor(sample_e1_mask),
-                'e2_mask': torch.tensor(sample_e2_mask)
-            }
-        else:
-            sample_tag = self.tags[idx]
-            sample_tag_id = self.tag2idx[sample_tag]
-            sample = {
-                'token_ids': torch.tensor(sample_token_ids),
-                'token_type_ids': torch.tensor(sample_token_type_ids),
-                'attention_mask': torch.tensor(sample_attention_mask),
-                'e1_mask': torch.tensor(sample_e1_mask),
-                'e2_mask': torch.tensor(sample_e2_mask),
-                'tag_id': torch.tensor(sample_tag_id)
-            }
-        
-        return sample
 
 
 def get_data(dataset,word2index,relation2id_dict):
