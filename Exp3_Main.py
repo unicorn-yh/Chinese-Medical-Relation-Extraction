@@ -10,13 +10,14 @@ from Exp3_Model import TextCNN_Model
 import torch
 import os
 import json
-from torch.utils.tensorboard import SummaryWriter
 from sklearn import metrics
 import time
+
 
 config = Training_Config()
 device = 'cuda' if config.cuda else 'cpu'
 idx2tag = id2relation()
+
 
 def train(model, loader):
     correct_count = 0
@@ -79,14 +80,17 @@ def predict(model, loader):
         for tag in tags_pred:
             file.write("%s\n" % tag)
 
+
 def save_checkpoint(checkpoint_dict, file):
     with open(file, 'w', encoding='utf-8') as f_out:
         json.dump(checkpoint_dict, f_out, ensure_ascii=False, indent=2)
+
 
 def load_checkpoint(file):
     with open(file, 'r', encoding='utf-8') as f_in:
         checkpoint_dict = json.load(f_in)
     return checkpoint_dict
+
 
 def get_checkpoint(checkpoint_file, model, model_file):
     # load checkpoint if one exists
@@ -123,7 +127,6 @@ if __name__ == "__main__":
     loss_function = torch.nn.CrossEntropyLoss()  # torch.nn中的损失函数进行挑选，并进行参数设置
     # 优化器设置
     optimizer = torch.optim.Adam(params=Text_Model.parameters(),lr=config.lr,weight_decay=1e-5)  # torch.optim中的优化器进行挑选，并进行参数设置
-    writer = SummaryWriter(os.path.join(config.log_dir, time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())))
     
     # load checkpoint if one exists
     checkpoint_dict, best_f1, epoch_offset = get_checkpoint(config.checkpoint_file, Text_Model, config.model_file)
@@ -136,7 +139,6 @@ if __name__ == "__main__":
         with torch.no_grad():
             validation(Text_Model, loader=val_loader, best_f1=best_f1)
 
-    writer.close()
 
     # 预测（测试）
     predict(Text_Model, test_loader)

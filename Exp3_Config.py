@@ -16,8 +16,6 @@ class Training_Config(object):
                  learning_rate=0.001,
                  batch_size=16,
                  dropout=0.3,
-                 pretrained_model_path=None,
-                 log_dir='run',
                  checkpoint_file='checkpoint.json',
                  model_file='model.bin'):
         self.embedding_dimension = embedding_dimension  # 词向量的维度
@@ -30,8 +28,6 @@ class Training_Config(object):
         self.batch_size = batch_size  # 批大小
         self.cuda = cuda  # 是否用CUDA
         self.dropout = dropout  # dropout概率
-        self.pretrained_model_path = pretrained_model_path 
-        self.log_dir = log_dir
         self.checkpoint_file = checkpoint_file
         self.model_file = model_file
 
