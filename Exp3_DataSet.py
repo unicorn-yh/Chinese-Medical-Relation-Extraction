@@ -110,13 +110,13 @@ class SkipGram_Data(Dataset):
         return len(self.text_encoded)
 
     def __getitem__(self, idx):
-        idx = min( max(idx,C),len(self.text_encoded)-2-C) #防止越界
+        idx = min(max(idx,C),len(self.text_encoded)-2-C) #防止越界
         center_word = self.text_encoded[idx]
         pos_indices = list(range(idx-C, idx)) + list(range(idx+1, idx+1+C))
         pos_words = self.text_encoded[pos_indices] 
         #多项式分布采样，取出指定个数的高频词
-        neg_words = torch.multinomial(self.word_freqs, num_sampled+2*C, False)#True)
-        #去掉正向标签
+        neg_words = torch.multinomial(self.word_freqs, num_sampled+2*C, False)
+        #负向标签：去掉正向标签
         neg_words = torch.Tensor(np.setdiff1d(neg_words.numpy(),pos_words.numpy())[:num_sampled]).long()
         return center_word, pos_words, neg_words
 
@@ -156,11 +156,10 @@ if __name__ == "__main__":
 
     print("生成 skip-gram 模型 ......")
     train_skipgram = SkipGram_Data(word_data, word_freq, reversed_word_freq, freq)
-    skipgram_loader = torch.utils.data.DataLoader(train_skipgram, batch_size=BATCH_SIZE,drop_last=True, shuffle=True)
+    skipgram_loader = torch.utils.data.DataLoader(train_skipgram, batch_size=BATCH_SIZE, drop_last=True, shuffle=True)
     sample = iter(skipgram_loader)		# 将数据集转化成迭代器
     center_word, pos_words, neg_words = sample.next()	  # 从迭代器中取出一批次样本			
-    #print(center_word[0], reversed_word_freq[np.compat.long(center_word[0])], [reversed_word_freq[i] for i in pos_words[0].numpy()])
-
+   
     model = SkipGram_Model(word_size, EMBEDDING_SIZE).to(device)
     model.train()
 
