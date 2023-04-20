@@ -86,7 +86,7 @@ def id2relation():
 
 def word2vec():
     word2vec_dict = {}
-    with open('skip-gram-model.txt','r',encoding='utf-8') as file:
+    with open('data/skip-gram-model.txt','r',encoding='utf-8') as file:
         for line in file:
             tmp = line.index("[")
             word2vec_dict[line[0:tmp]] = line[tmp+1:len(line)-2]
@@ -186,12 +186,10 @@ def get_tensordata(dataset,loc_vec,word2index,relation2id_dict):
         for word in segmented:
             if word in word2index.keys():
                 sent.append(word2index[word])
-                pos1.append(pos_feature(k-loc_vec[i][0][0]+1))
-                pos2.append(pos_feature(k-loc_vec[i][1][0]+1))
             else:
                 sent.append(word2index["UNKNOWN"])
-                pos1.append(pos_feature(k-loc_vec[i][0][0]+1))
-                pos2.append(pos_feature(k-loc_vec[i][1][0]+1))
+            pos1.append(pos_feature(k-loc_vec[i][0][0]+1))
+            pos2.append(pos_feature(k-loc_vec[i][1][0]+1))
             k += 1
         if len(segmented) < sent_len:
             sent.extend([word2index["BLANK"]]*(sent_len-len(sent)))
