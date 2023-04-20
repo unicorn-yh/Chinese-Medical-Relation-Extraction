@@ -122,7 +122,6 @@ if __name__ == "__main__":
 
     # 初始化模型对象
     Text_Model = TextCNN_Model(configs=config,pre_embedding=pre_embed).to(device)
-    #Text_Model = SentenceRE(config).to(device)
     # 损失函数设置
     loss_function = torch.nn.CrossEntropyLoss()  # torch.nn中的损失函数进行挑选，并进行参数设置
     # 优化器设置
