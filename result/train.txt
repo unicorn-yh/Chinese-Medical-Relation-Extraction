@@ -1,0 +1,60 @@
+Epoch 1, Train acc:0.5821, Train loss:0.0001, Valid acc:0.5975
+Epoch 2, Train acc:0.6578, Train loss:0.0001, Valid acc:0.6262
+Epoch 3, Train acc:0.7011, Train loss:0.0001, Valid acc:0.6422
+Epoch 4, Train acc:0.7319, Train loss:0.0001, Valid acc:0.6426
+Epoch 5, Train acc:0.7536, Train loss:0.0001, Valid acc:0.6447
+Epoch 6, Train acc:0.7673, Train loss:0.0000, Valid acc:0.6545
+Epoch 7, Train acc:0.7734, Train loss:0.0000, Valid acc:0.6575
+Epoch 8, Train acc:0.7866, Train loss:0.0000, Valid acc:0.6586
+Epoch 9, Train acc:0.7915, Train loss:0.0000, Valid acc:0.6586
+Epoch 10, Train acc:0.8052, Train loss:0.0000, Valid acc:0.6577
+Epoch 11, Train acc:0.8033, Train loss:0.0000, Valid acc:0.6559
+Epoch 12, Train acc:0.8113, Train loss:0.0000, Valid acc:0.6548
+Epoch 13, Train acc:0.8120, Train loss:0.0000, Valid acc:0.6570
+Epoch 14, Train acc:0.8189, Train loss:0.0000, Valid acc:0.6687
+Epoch 15, Train acc:0.8205, Train loss:0.0000, Valid acc:0.6654
+Epoch 16, Train acc:0.8213, Train loss:0.0000, Valid acc:0.6670
+Epoch 17, Train acc:0.8269, Train loss:0.0000, Valid acc:0.6676
+Epoch 18, Train acc:0.8269, Train loss:0.0000, Valid acc:0.6641
+Epoch 19, Train acc:0.8322, Train loss:0.0000, Valid acc:0.6635
+Epoch 20, Train acc:0.8319, Train loss:0.0000, Valid acc:0.6641
+
+
+Epoch 1, Train acc:0.7718, Train loss:0.0462, Valid acc:0.6630
+Epoch 2, Train acc:0.7997, Train loss:0.0395, Valid acc:0.6602
+Epoch 3, Train acc:0.8127, Train loss:0.0365, Valid acc:0.6682
+Epoch 4, Train acc:0.8222, Train loss:0.0348, Valid acc:0.6692
+Epoch 5, Train acc:0.8271, Train loss:0.0340, Valid acc:0.6698
+Epoch 6, Train acc:0.8295, Train loss:0.0333, Valid acc:0.6725
+Epoch 7, Train acc:0.8349, Train loss:0.0325, Valid acc:0.6737
+Epoch 8, Train acc:0.8377, Train loss:0.0320, Valid acc:0.6732
+Epoch 9, Train acc:0.8408, Train loss:0.0313, Valid acc:0.6688
+Epoch 10, Train acc:0.8446, Train loss:0.0304, Valid acc:0.6636
+
+
+Epoch 1, Train acc:0.7836, Train loss:0.0432, Valid acc:0.6602
+Epoch 2, Train acc:0.8114, Train loss:0.0374, Valid acc:0.6661
+Epoch 3, Train acc:0.8220, Train loss:0.0348, Valid acc:0.6679
+Epoch 4, Train acc:0.8334, Train loss:0.0332, Valid acc:0.6707
+Epoch 5, Train acc:0.8363, Train loss:0.0321, Valid acc:0.6684
+Epoch 6, Train acc:0.8414, Train loss:0.0313, Valid acc:0.6711
+Epoch 7, Train acc:0.8455, Train loss:0.0306, Valid acc:0.6667
+Epoch 8, Train acc:0.8468, Train loss:0.0303, Valid acc:0.6723
+Epoch 9, Train acc:0.8496, Train loss:0.0297, Valid acc:0.6707
+Epoch 10, Train acc:0.8513, Train loss:0.0296, Valid acc:0.6729
+
+Epoch 1, Train acc:0.7942, Train loss:0.0408, Valid acc:0.7684
+Epoch 2, Train acc:0.8203, Train loss:0.0349, Valid acc:0.7693
+Epoch 3, Train acc:0.8315, Train loss:0.0332, Valid acc:0.7718
+Epoch 4, Train acc:0.8408, Train loss:0.0312, Valid acc:0.7731
+Epoch 5, Train acc:0.8456, Train loss:0.0305, Valid acc:0.7804
+Epoch 6, Train acc:0.8468, Train loss:0.0301, Valid acc:0.7706
+Epoch 7, Train acc:0.8521, Train loss:0.0292, Valid acc:0.7745
+Epoch 8, Train acc:0.8525, Train loss:0.0292, Valid acc:0.7737
+Epoch 9, Train acc:0.8540, Train loss:0.0289, Valid acc:0.7726
+Epoch 10, Train acc:0.8582, Train loss:0.0281, Valid acc:0.7739
+
+
+==================================================================
+
+
