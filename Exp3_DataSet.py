@@ -167,7 +167,7 @@ if __name__ == "__main__":
     valid_window = word_size/2  # 取样数据的分布范围.
     valid_examples = np.random.choice(int(valid_window), valid_size, replace=False)
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
-    NUM_EPOCHS = 1
+    NUM_EPOCHS = 10
 
     for e in range(NUM_EPOCHS):
         for ei, (input_labels, pos_labels, neg_labels) in enumerate(skipgram_loader):
@@ -197,7 +197,7 @@ if __name__ == "__main__":
                 print(log_str)
     final_embeddings = normalized_embeddings
 
-    with open('skip-gram-model.txt', 'a', encoding='utf-8') as f:    
+    with open('data/skip-gram-model.txt', 'a', encoding='utf-8') as f:    
         for i in range(len(reversed_word_freq)):
             f.write(reversed_word_freq[i] + str(list(final_embeddings.numpy()[i])) + '\n')
     f.close()
