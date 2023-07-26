@@ -26,7 +26,7 @@
 
 ## What we do
 
-- Extract the corresponding relationship from the given head entity, tail entity and sentence in the data set
+- Extract the corresponding relationship from the given head entity, tail entity and sentence in dataset
 
 - Classify the sentence into a certain relationship according to the given entity. 
 
@@ -34,7 +34,7 @@
 
 - The relationship represented by the corresponding head entity, tail entity and sentence is obtained.
 
-  #### *Data Preprocess*
+  #### <u>*Data Preprocess*</u>
 
   - After the data is read in, a vocabulary list is constructed for sentences to convert them into index sequences scorresponding to the vocabulary. 
 
