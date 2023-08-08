@@ -34,7 +34,7 @@
 
 - The relationship represented by the corresponding head entity, tail entity and sentence is obtained.
 
-  #### <u>*Data Preprocess*</u>
+  ### <u>*Data Preprocess*</u>
 
   - **Vocab-to-index:** After the data is read in, a vocabulary list is constructed for sentences to convert them into index sequences corresponding to the vocabulary. 
 
@@ -44,7 +44,7 @@
 
   - **Word embedding:** First, set the corresponding word embedding parameters according to the length of vocabulary. Do embedding for the read-in sentence.
 
-  - **Feature extraction:** Use the head and tail entity position information and sentence information to do feature extraction through convolution and classification.
+  - **Feature extraction:** Use the head and tail entity position information and sentence information to do feature extraction through convolution and classification. 
 
     |           Data           | Details                                                      |
     | :----------------------: | :----------------------------------------------------------- |
@@ -53,6 +53,34 @@
 
 
 
-About skip-gram: 
+***About skip-gram:*** 
 
-- Given a central word and a context word to be predicted, take this context word as a positive sample. Select several negative samples through random sampling of the vocabulary. Then convert a large-scale classification problem into a two-class classification problem, and optimize the calculation speed in this way. 
+- Given a central word and a context word to be predicted, take this context word as a positive sample. Select several negative samples through random sampling of the vocabulary. 
+
+- Then convert a large-scale classification problem into a **two-class classification** problem, and optimize the calculation speed in this way. We make a multinomial distribution sampling and take a specified number of high-frequency words as positive labels, and we obtain negative labels by removing positive labels. 
+
+- The code uses a **sliding window** to scan the corpus from left to right. In each window, the central word needs to predict its context and form training data. 
+
+- Some matrix operations on large vocabularies need to consume huge resources, so we **simulate the result of softmax by negative sampling**.
+
+- The size of the vocabulary determines that our skip-gram neural network will have a large-scale weight matrix. All these weights need to be adjusted through hundred millions of training samples, which is very computationally resource-intensive, and very slow to be trained. 
+
+- **Negative sampling solves this problem**, which is a way to increase the speed of training and improve the quality of the resulting word vectors. Unlike updating all weights for each training sample, negative sampling **only updates a small part of the weights for each training sample**, which **reduces the amount of calculation in the gradient descent process**. 
+
+- We use a **unigram distribution** to select negative words, and the formula in the code is implemented as follows:
+  $$
+  P(w_{i}) = \dfrac{f(w_{i})^{3/4}}{\sum_{j=0}^{n}(f(w_{j})^{3/4})} \tag{1}
+  $$
+  $f(w_{i})$ is known as word frequency. 
+
+  When we train the skip-gram model, we convert the dataset into an iterator, and take a batch of samples from the iterator. The Adam optimizer and backpropagation method are used in the training process, and then the word embedding vector in the model is normalized.
+
+- The word embedding vector is written into *"skip-gram-model.txt"* for subsequent word embedding and model training.
+
+  
+
+  <br>
+
+### <u>*Data Preprocess*</u>
+
+- **Vocab-to-index:** After the data i
