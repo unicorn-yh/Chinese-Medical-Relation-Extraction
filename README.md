@@ -100,11 +100,9 @@
 
 - We use a **unigram distribution** to select negative words, and the formula in the code is implemented as follows:
 
-  
-  $$
-  P(w_{i}) = \dfrac{f(w_{i})^{3/4}}{\sum_{j=0}^{n}(f(w_{j})^{3/4})}
-  $$
-  
+  | $P(w_{i}) = \dfrac{f(w_{i})^{3/4}}{\sum_{j=0}^{n}(f(w_{j})^{3/4})}$ |
+  | :----------------------------------------------------------: |
+
 
   $f(w_{i})$ is known as word frequency. 
 
