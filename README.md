@@ -76,9 +76,9 @@
 
 ## Result
 
-| Index     | Epoch | Train Acc | Valid Acc | Train Loss |
-| --------- | ----- | --------- | --------- | ---------- |
-| **Value** | 10    | 0.8582    | 0.7804    | 0.0281     |
+|   Index   | Epoch | Train Acc | Valid Acc | Train Loss |
+| :-------: | :---: | :-------: | :-------: | :--------: |
+| **Value** |  10   |  0.8582   |  0.7804   |   0.0281   |
 
 
 
