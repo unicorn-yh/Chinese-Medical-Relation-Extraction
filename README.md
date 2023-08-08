@@ -30,13 +30,13 @@
 
 - Classify the sentence into a certain relationship according to the given entity. 
 
-- Through CNN, it is mapped into a 44-dimensional short tensor ***(44 different classes)***, and finally through the Argmax function
+- Through CNN, it is mapped into a 44-dimensional short tensor ***<u>(44 different classes)</u>***, and finally through the Argmax function
 
 - The relationship represented by the corresponding head entity, tail entity and sentence is obtained.
 
   <br>
 
-  ### <u>*Data Preprocess*</u>
+  ### <u>1. Data Preprocessing</u>
 
   - **Vocab-to-index:** After the data is read in, a vocabulary list is constructed for sentences to convert them into index sequences corresponding to the vocabulary. 
 
@@ -53,7 +53,13 @@
     | Data after reorganizing  | ![image-20230726171121048](README/image-20230726171121048.png) |
     | Data after preprocessing | ![image-20230726172134475](README/image-20230726172134475.png)![image-20230726172218718](README/image-20230726172218718.png) |
 
+### <u>*2.Model Training*</u>
 
+- **Vocab-to-index:** After the
+
+- 
+
+  <br>
 
 ***About skip-gram:*** 
 
@@ -85,8 +91,4 @@
 
   
 
-  <br>
-
-### <u>*Data Preprocess*</u>
-
-- **Vocab-to-index:** After the data i
+  
