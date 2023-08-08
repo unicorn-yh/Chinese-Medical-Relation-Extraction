@@ -52,14 +52,38 @@
     | :----------------------: | :----------------------------------------------------------- |
     | Data after reorganizing  | ![image-20230726171121048](README/image-20230726171121048.png) |
     | Data after preprocessing | ![image-20230726172134475](README/image-20230726172134475.png)![image-20230726172218718](README/image-20230726172218718.png) |
-
-### <u>*2.Model Training*</u>
-
-- **Vocab-to-index:** After the
-
-- 
-
+  
   <br>
+  
+  ### <u>2. Model Training</u>
+  
+  - CNN Model: 
+  
+    | Layer | Layer Name            | Structure                                   |
+    | ----- | --------------------- | ------------------------------------------- |
+    | 1     | Input embedding       | Embedding of text + position 1 + position 2 |
+    | 2     | Dropout               |                                             |
+    | 3     | Convolutional Layer   | Conv1D (kernel = 2) + Tanh + MaxPool1D      |
+    | 4     | Convolutional Layer   | Conv1D (kernel = 3) + Tanh + MaxPool1D      |
+    | 5     | Convolutional Layer   | Conv1D (kernel = 4) + Tanh + MaxPool1D      |
+    | 6     | Convolutional Layer   | Conv1D (kernel = 5) + Tanh + MaxPool1D      |
+    | 7     | Convolutional Layer   | Conv1D (kernel = 6) + Tanh + MaxPool1D      |
+    | 8     | Dropout               |                                             |
+    | 9     | Dropout               |                                             |
+    | 10    | Fully Connected Layer |                                             |
+
+​	<br>
+
+## Result
+
+| Index      | Value  |
+| ---------- | ------ |
+| Epoch      | 10     |
+| Train Acc  | 0.8582 |
+| Valid Acc  | 0.7804 |
+| Train Loss | 0.0281 |
+
+<br>
 
 ***About skip-gram:*** 
 
