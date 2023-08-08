@@ -34,6 +34,8 @@
 
 - The relationship represented by the corresponding head entity, tail entity and sentence is obtained.
 
+  <br>
+
   ### <u>*Data Preprocess*</u>
 
   - **Vocab-to-index:** After the data is read in, a vocabulary list is constructed for sentences to convert them into index sequences corresponding to the vocabulary. 
@@ -45,7 +47,7 @@
   - **Word embedding:** First, set the corresponding word embedding parameters according to the length of vocabulary. Do embedding for the read-in sentence.
 
   - **Feature extraction:** Use the head and tail entity position information and sentence information to do feature extraction through convolution and classification. 
-
+  
     |           Data           | Details                                                      |
     | :----------------------: | :----------------------------------------------------------- |
     | Data after reorganizing  | ![image-20230726171121048](README/image-20230726171121048.png) |
@@ -68,9 +70,13 @@
 - **Negative sampling solves this problem**, which is a way to increase the speed of training and improve the quality of the resulting word vectors. Unlike updating all weights for each training sample, negative sampling **only updates a small part of the weights for each training sample**, which **reduces the amount of calculation in the gradient descent process**. 
 
 - We use a **unigram distribution** to select negative words, and the formula in the code is implemented as follows:
+
+  
   $$
   P(w_{i}) = \dfrac{f(w_{i})^{3/4}}{\sum_{j=0}^{n}(f(w_{j})^{3/4})} \tag{1}
   $$
+  
+
   $f(w_{i})$ is known as word frequency. 
 
   When we train the skip-gram model, we convert the dataset into an iterator, and take a batch of samples from the iterator. The Adam optimizer and backpropagation method are used in the training process, and then the word embedding vector in the model is normalized.
