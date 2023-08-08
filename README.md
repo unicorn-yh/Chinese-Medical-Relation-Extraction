@@ -98,13 +98,16 @@
 
 - **Negative sampling solves this problem**, which is a way to increase the speed of training and improve the quality of the resulting word vectors. Unlike updating all weights for each training sample, negative sampling **only updates a small part of the weights for each training sample**, which **reduces the amount of calculation in the gradient descent process**. 
 
-- We use a **unigram distribution** to select negative words, and the formula in the code is implemented as follows:     $P(w_{i}) = \dfrac{f(w_{i})^{3/4}}{\sum_{j=0}^{n}(f(w_{j})^{3/4})}$
+- We use a **unigram distribution** to select negative words, and the formula in the code is implemented as follows:
 
   
+  $$P(w_{i}) = \dfrac{f(w_{i})^{3/4}}{\sum_{j=0}^{n}(f(w_{j})^{3/4})}$$
+  
+
   $f(w_{i})$ is known as word frequency. 
-  
+
   When we train the skip-gram model, we convert the dataset into an iterator, and take a batch of samples from the iterator. The Adam optimizer and backpropagation method are used in the training process, and then the word embedding vector in the model is normalized.
-  
+
 - The word embedding vector is written into *"skip-gram-model.txt"* for subsequent word embedding and model training.
 
   
