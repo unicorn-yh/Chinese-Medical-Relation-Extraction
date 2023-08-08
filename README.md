@@ -76,12 +76,11 @@
 
 ## Result
 
-| Index      | Value  |
-| ---------- | ------ |
-| Epoch      | 10     |
-| Train Acc  | 0.8582 |
-| Valid Acc  | 0.7804 |
-| Train Loss | 0.0281 |
+| Index     | Epoch | Train Acc | Valid Acc | Train Loss |
+| --------- | ----- | --------- | --------- | ---------- |
+| **Value** | 10    | 0.8582    | 0.7804    | 0.0281     |
+
+
 
 <br>
 
